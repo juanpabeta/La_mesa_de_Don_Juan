@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; color: #20231f; background: #f5f4f0; font-synthesis: none; text-rendering: optimizeLegibility; }
+* { box-sizing: border-box; }
+body { min-width: 320px; min-height: 100vh; margin: 0; }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+.new-ticket { animation: ticket-arrives 1.3s ease-in-out 3; }
+@keyframes ticket-arrives { 50% { transform: translateY(-3px); filter: drop-shadow(0 0 12px rgba(237,106,58,.48)); } }
+.print-only { display: none; }
+
+@media print {
+  @page { size: 80mm auto; margin: 4mm; }
+  html, body, #root { width: 80mm !important; min-width: 0 !important; margin: 0 !important; background: white !important; }
+  body * { visibility: hidden !important; }
+  .ticket-shell.print-target, .ticket-shell.print-target * { visibility: visible !important; }
+  .ticket-shell.print-target { position: absolute !important; left: 0 !important; top: 0 !important; width: 72mm !important; max-width: 72mm !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; overflow: visible !important; }
+  .ticket-shell.print-target > :not(.print-only) { display: none !important; }
+  .ticket-shell.print-target .print-only { display: block !important; }
+  .ticket-paper { width: 72mm !important; max-width: 72mm !important; padding: 0 !important; box-shadow: none !important; font-family: 'IBM Plex Mono', ui-monospace, monospace !important; }
+}
