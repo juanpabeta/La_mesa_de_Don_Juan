@@ -19,8 +19,8 @@ class Settings(BaseSettings):
     app_name: str = "Gestión de Pedidos para Restaurantes"
     app_env: str = "development"
     api_v1_prefix: str = "/api/v1"
-    database_url: str = "postgresql+psycopg://postgres:postgres@db:5432/restaurantes"
-    secret_key: str = Field(default="cambiar-esta-clave-local-antes-de-desplegar", min_length=32)
+    database_url: str = "postgresql+psycopg://postgres:JP1806@db:5432/restaurantes"
+    secret_key: str = Field(default="iYjm68g3tM4RWau66jdqjhjvx-OsO7JT8XmdcMI3skg", min_length=32)
     jwt_algorithm: Literal["HS256"] = Field(
         default="HS256",
         validation_alias=AliasChoices("ALGORITHM", "JWT_ALGORITHM"),
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     cookie_secure: bool = False
     cookie_samesite: Literal["lax", "strict", "none"] = "lax"
     cors_origins: list[str] = Field(
-        default_factory=lambda: ["http://localhost:3000", "http://127.0.0.1:3000"]
+        default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"]
     )
     enable_delay_monitor: bool = False
     db_pool_size: int = Field(default=5, gt=0, le=50)
@@ -67,7 +67,7 @@ class Settings(BaseSettings):
                 raise ValueError("DATABASE_URL debe apuntar a una base de datos productiva segura")
             local_hosts = {"localhost", "127.0.0.1", "::1"}
             parsed_origins = [urlparse(origin) for origin in self.cors_origins]
-            if not parsed_origins or any(
+            if any(
                 origin.scheme != "https"
                 or not origin.netloc
                 or origin.hostname in local_hosts
@@ -77,6 +77,7 @@ class Settings(BaseSettings):
                 for origin in parsed_origins
             ):
                 raise ValueError("CORS_ORIGINS debe contener orígenes HTTPS públicos del despliegue")
+            
         if self.cookie_samesite == "none" and not self.cookie_secure:
             raise ValueError("COOKIE_SECURE debe ser true cuando COOKIE_SAMESITE=none")
         return self

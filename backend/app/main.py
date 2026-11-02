@@ -108,7 +108,7 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/ready", tags=["Sistema"])
+@app.get("/health/ready", tags=["Sistema"])
 def readiness(db=Depends(get_db)) -> dict[str, str]:
     """Indica si la aplicación puede atender tráfico dependiente de PostgreSQL."""
     try:
