@@ -80,7 +80,7 @@ Cada módulo separa normalmente:
 
 Para ejecutar localmente:
 
-- Python 3.12 o superior compatible con el proyecto.
+- Python 3.13.
 - PostgreSQL 16 o superior.
 - Un entorno virtual de Python.
 
@@ -127,6 +127,8 @@ POSTGRES_PASSWORD=una-contraseña-segura
 ```
 
 `POSTGRES_PASSWORD` es la contraseña del usuario de PostgreSQL. No es la contraseña del administrador de la aplicación.
+
+En Railway no copies estas tres variables manualmente desde el entorno local. Configura `DATABASE_URL` como referencia a la variable `DATABASE_URL` del servicio PostgreSQL del mismo proyecto y entorno.
 
 El archivo `.env` contiene configuración local y no debe subirse al repositorio. Usa `.env.example` como plantilla sin secretos.
 
@@ -193,6 +195,35 @@ docker compose logs api --tail=100
 ```
 
 La API estará disponible en `http://localhost:8000`.
+
+## Variables de Railway
+
+Configura estas variables en el servicio de la API:
+
+| Variable | Tipo | Valor |
+|---|---|---|
+| `APP_ENV` | Variable | `production` |
+| `DATABASE_URL` | Referencia | `${{Postgres.DATABASE_URL}}`, usando el nombre real del servicio PostgreSQL |
+| `SECRET_KEY` | Secret | Una clave aleatoria segura de mínimo 32 caracteres |
+| `JWT_ALGORITHM` | Variable | `HS256` |
+| `ACCESS_TOKEN_MINUTES` | Variable | `60` |
+| `AUTH_COOKIE_NAME` | Variable | `access_token` |
+| `COOKIE_SECURE` | Variable | `true` |
+| `COOKIE_SAMESITE` | Variable | `lax` |
+| `CORS_ORIGINS` | Variable | `["https://tu-frontend.com"]` |
+| `ENABLE_DELAY_MONITOR` | Variable | `true` si se usa una sola réplica |
+| `DB_POOL_SIZE` | Variable | `5` |
+| `DB_MAX_OVERFLOW` | Variable | `10` |
+| `DB_POOL_TIMEOUT_SECONDS` | Variable | `30` |
+
+Railway proporciona `PORT` automáticamente. No es necesario crearla manualmente.
+
+Configura además:
+
+- Directorio raíz del servicio: `/backend`.
+- Pre-deploy command: `alembic upgrade head`.
+- Healthcheck path: `/ready`.
+- Start command: el `CMD` del Dockerfile, que usa `${PORT:-8000}`.
 
 ## Migraciones
 

@@ -4,7 +4,7 @@ from functools import lru_cache
 from typing import Literal
 from urllib.parse import urlparse
 
-from pydantic import AliasChoices, Field, model_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -40,6 +40,16 @@ class Settings(BaseSettings):
     db_pool_size: int = Field(default=5, gt=0, le=50)
     db_max_overflow: int = Field(default=10, ge=0, le=100)
     db_pool_timeout_seconds: int = Field(default=30, gt=0, le=300)
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, value: str) -> str:
+        """Make Railway's generic PostgreSQL URL use the installed psycopg driver."""
+        if value.startswith("postgres://"):
+            return "postgresql+psycopg://" + value[len("postgres://") :]
+        if value.startswith("postgresql://"):
+            return "postgresql+psycopg://" + value[len("postgresql://") :]
+        return value
 
     @model_validator(mode="after")
     def validate_production_security(self) -> "Settings":
