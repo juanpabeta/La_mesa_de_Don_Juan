@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     app_name: str = "Gestión de Pedidos para Restaurantes"
     app_env: str = "development"
     api_v1_prefix: str = "/api/v1"
-    database_url: str = "postgresql+psycopg://postgres:JP1806@db:5432/restaurantes"
+    database_url: str = "postgresql+psycopg://postgres:JP1806@db:5432/kitchen_flow"
     secret_key: str = Field(default="iYjm68g3tM4RWau66jdqjhjvx-OsO7JT8XmdcMI3skg", min_length=32)
     jwt_algorithm: Literal["HS256"] = Field(
         default="HS256",
