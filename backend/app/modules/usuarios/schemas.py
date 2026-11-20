@@ -1,53 +1,36 @@
-"""DTOs de entrada y salida para empleados y roles."""
-
-from datetime import datetime
-
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
-
-
-class RolResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    nombre: str
-    descripcion: str | None = None
+"""DTOs de usuarios."""
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UsuarioCreate(BaseModel):
-    nombre_completo: str = Field(min_length=2, max_length=160)
-    email: EmailStr
-    password: str = Field(min_length=10, max_length=128)
-    roles: list[str] = Field(default_factory=lambda: ["MESERO"], max_length=10)
-
-    @field_validator("password")
-    @classmethod
-    def bcrypt_password_fits(cls, value: str) -> str:
-        if len(value.encode("utf-8")) > 72:
-            raise ValueError("La contraseña supera el límite de 72 bytes de bcrypt")
-        return value
+    """Datos de alta."""
+    nombres: str
+    apellidos: str
+    correo: EmailStr
+    contraseña: str = Field(min_length=8)
+    roles: list[str] = ["Mesero"]
 
 
-class UsuarioUpdate(BaseModel):
-    nombre_completo: str | None = Field(default=None, min_length=2, max_length=160)
-    email: EmailStr | None = None
-    activo: bool | None = None
-
-
-class RoleUpdate(BaseModel):
-    roles: list[str] = Field(min_length=1, max_length=10)
-
-
-class UsuarioResponse(BaseModel):
+class UsuarioRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+    id_usuario: int
+    nombres: str
+    apellidos: str
+    correo: EmailStr
+    estado: bool
+    roles: list[str]
 
-    id: int
-    nombre_completo: str
-    email: EmailStr
-    activo: bool
-    creado_en: datetime
-    roles: list[RolResponse] = Field(default_factory=list)
+    
+class UsuarioUpdate(BaseModel):
+    """Datos de actualización."""
+    nombres: str | None = None
+    apellidos: str | None = None
+    correo: EmailStr | None = None
+    contraseña: str | None = Field(default=None, min_length=8)
+    estado: bool | None = None
+    roles: list[str] | None = None
 
-
-class DeleteResponse(BaseModel):
-    message: str
-    id: int
+class LoginRequest(BaseModel):
+    """Credenciales de acceso."""
+    correo: EmailStr
+    contraseña: str

@@ -1,32 +1,26 @@
-"""DTOs validados de mesas y disponibilidad."""
-
-from datetime import datetime
-from typing import Literal
-
+"""DTOs de mesas."""
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class MesaCreate(BaseModel):
-    numero: int = Field(gt=0)
-    zona: str | None = Field(default=None, max_length=80)
-    capacidad: int = Field(gt=0, le=100)
+    """Alta de mesa."""
+    numero_mesa: int = Field(gt=0)
+    zona: str
+    capacidad: int = Field(gt=0)
 
 
-class MesaResponse(BaseModel):
+class MesaRead(MesaCreate):
+    """Lectura de mesa."""
     model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    numero: int
-    zona: str | None
-    capacidad: int
-    estado: Literal["LIBRE", "OCUPADA", "INACTIVA"]
-    creado_en: datetime
+    id_mesa: int
+    estado: str
+    activa: bool
 
 
-class MesaStatusUpdate(BaseModel):
-    estado: Literal["LIBRE", "INACTIVA"]
-
-
-class DeleteResponse(BaseModel):
-    message: str
-    id: int
+class MesaUpdate(BaseModel):
+    """Campos modificables de una mesa."""
+    numero_mesa: int | None = Field(default=None, gt=0)
+    zona: str | None = None
+    capacidad: int | None = Field(default=None, gt=0)
+    estado: str | None = None
+    activa: bool | None = None

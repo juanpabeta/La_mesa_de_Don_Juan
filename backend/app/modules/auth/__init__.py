@@ -1,1 +1,1 @@
-"""Autenticación y sesiones."""
+"""Autenticación."""

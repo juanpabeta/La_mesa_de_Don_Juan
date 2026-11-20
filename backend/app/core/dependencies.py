@@ -1,66 +1,53 @@
-"""Dependencias FastAPI para base de datos, sesión autenticada y autorización."""
-
+"""Dependencias de autenticación y autorización."""
 from collections.abc import Callable
-from datetime import UTC, datetime
-from typing import Annotated
-
-from fastapi import Depends, HTTPException, Request
-from sqlalchemy.orm import Session
-
-from app.core.config import settings
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.exceptions import AuthenticationError
 from app.core.security import decode_access_token
-from app.modules.auth.repositories import AuthRepository
 from app.modules.usuarios.models import Usuario
-from app.modules.usuarios.repositories import UsuarioRepository
 
-DatabaseSession = Annotated[Session, Depends(get_db)]
+bearer_scheme = HTTPBearer(auto_error=False, scheme_name="BearerAuth")
 
-
-def get_current_user(request: Request, db: Session = Depends(get_db)) -> Usuario:
-    token = request.cookies.get(settings.auth_cookie_name)
+async def get_current_user(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> Usuario:
+    """Autentica desde Bearer (Swagger) o desde la cookie HttpOnly."""
+    token = credentials.credentials if credentials else request.cookies.get("access_token")
     if not token:
-        authorization = request.headers.get("Authorization", "")
-        scheme, separator, credentials = authorization.partition(" ")
-        if separator and scheme.lower() == "bearer":
-            token = credentials.strip()
-    if not token:
-        raise HTTPException(status_code=401, detail="Sesión inválida o expirada")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Autenticación requerida",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     try:
         payload = decode_access_token(token)
-    except AuthenticationError as exc:
-        raise HTTPException(status_code=401, detail="Sesión inválida o expirada") from exc
-    try:
         user_id = int(payload["sub"])
-    except (TypeError, ValueError) as exc:
-        raise HTTPException(status_code=401, detail="Sesión inválida o expirada") from exc
-    session_token = AuthRepository(db).get_active_session(
-        str(payload["jti"]), user_id, datetime.now(UTC)
-    )
-    if session_token is None:
-        raise HTTPException(status_code=401, detail="Sesión inválida o expirada")
-    user = UsuarioRepository(db).get_by_id(user_id)
-    if user is None or not user.activo:
-        raise HTTPException(status_code=401, detail="Sesión inválida o expirada")
+    except (AuthenticationError, KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
+    user = await db.scalar(select(Usuario).where(Usuario.id_usuario == user_id, Usuario.estado.is_(True)))
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario no encontrado o inactivo",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
 
-def require_roles(allowed_roles: list[str] | str, *additional_roles: str) -> Callable:
-    requested_roles = [allowed_roles] if isinstance(allowed_roles, str) else list(allowed_roles)
-    requested_roles.extend(additional_roles)
-    aliases = {"ADMINISTRADOR": "ADMIN"}
-    normalized_roles = {aliases.get(role.strip().upper(), role.strip().upper()) for role in requested_roles}
-
-    def role_dependency(user: Usuario = Depends(get_current_user)) -> Usuario:
-        user_roles = {
-            aliases.get(role.nombre.strip().upper(), role.nombre.strip().upper()) for role in user.roles
-        }
-        if not normalized_roles.intersection(user_roles):
-            raise HTTPException(
-                status_code=403,
-                detail="No tiene permisos suficientes para realizar esta acción",
-            )
+def require_roles(allowed_roles: list[str]) -> Callable:
+    """Crea una dependencia que valida al menos uno de los roles."""
+    async def checker(user: Usuario = Depends(get_current_user)) -> Usuario:
+        names = {role.nombre for role in user.roles}
+        if not names.intersection(allowed_roles):
+            raise HTTPException(status_code=403, detail="Permisos insuficientes")
         return user
-
-    return role_dependency
+    return checker

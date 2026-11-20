@@ -1,42 +1,32 @@
-"""DTOs validados del catálogo de platos."""
-
-from datetime import datetime
+"""DTOs del menú."""
 from decimal import Decimal
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class PlatoCreate(BaseModel):
-    nombre: str = Field(min_length=2, max_length=120)
-    descripcion: str | None = Field(default=None, max_length=2000)
-    categoria: str | None = Field(default=None, max_length=80)
-    precio: Decimal = Field(ge=0, max_digits=10, decimal_places=2)
-    tiempo_preparacion_minutos: int = Field(default=15, gt=0, le=1440)
+    """Alta de plato."""
+    nombre: str
+    categoria: str
+    precio: Decimal = Field(gt=0)
+    tiempo_estimado_min: int = Field(gt=0)
+
+
+class PlatoRead(PlatoCreate):
+    """Lectura de plato."""
+    model_config = ConfigDict(from_attributes=True)
+    id_plato: int
+    activo: bool
+    agotado: bool = False
 
 
 class PlatoUpdate(BaseModel):
-    nombre: str | None = Field(default=None, min_length=2, max_length=120)
-    descripcion: str | None = Field(default=None, max_length=2000)
-    categoria: str | None = Field(default=None, max_length=80)
-    precio: Decimal | None = Field(default=None, ge=0, max_digits=10, decimal_places=2)
-    tiempo_preparacion_minutos: int | None = Field(default=None, gt=0, le=1440)
-    disponible: bool | None = None
+    """Campos modificables de un plato."""
+    nombre: str | None = None
+    categoria: str | None = None
+    precio: Decimal | None = Field(default=None, gt=0)
+    tiempo_estimado_min: int | None = Field(default=None, gt=0)
 
 
-class PlatoResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    nombre: str
-    descripcion: str | None
-    categoria: str | None
-    precio: Decimal
-    tiempo_preparacion_minutos: int
-    disponible: bool
-    creado_en: datetime
-    actualizado_en: datetime
-
-
-class DeleteResponse(BaseModel):
-    message: str
-    id: int
+class PlatoAgotado(BaseModel):
+    """Disponibilidad del plato."""
+    agotado: bool

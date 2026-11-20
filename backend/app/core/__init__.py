@@ -1,1 +1,1 @@
-"""Infraestructura y configuración compartida."""
+"""Componentes transversales."""

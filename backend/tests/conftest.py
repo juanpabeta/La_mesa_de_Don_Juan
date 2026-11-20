@@ -1,118 +1,83 @@
-"""Fixtures aisladas para probar la API sin conectarse al PostgreSQL del usuario."""
+"""Fixtures globales para la suite asíncrona de KitchenFlow."""
 
-import os
-import sys
-from pathlib import Path
+from collections.abc import AsyncGenerator
 
-os.environ["APP_ENV"] = "test"
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from collections.abc import Generator
-
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
-from sqlalchemy.orm import Session, sessionmaker
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base, get_db
-from app.core.security import password_context
+from app.core.security import create_access_token, hash_password
 from app.main import app
 from app.modules.usuarios.models import Rol, Usuario
 
-TEST_PASSWORD = "Mesasync-test-password-123!"
 
-
-@pytest.fixture(scope="session")
-def test_engine():
-    engine = create_engine(
-        "sqlite+pysqlite:///:memory:",
-        connect_args={"check_same_thread": False},
+@pytest_asyncio.fixture
+async def db_engine():
+    engine = create_async_engine(
+        "sqlite+aiosqlite://",
         poolclass=StaticPool,
+        connect_args={"check_same_thread": False},
     )
-
-    @event.listens_for(engine, "connect")
-    def enable_sqlite_foreign_keys(connection, _record) -> None:
-        cursor = connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
-
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all)
     yield engine
-    engine.dispose()
+    await engine.dispose()
 
 
-@pytest.fixture(scope="session")
-def test_session_factory(test_engine):
-    return sessionmaker(bind=test_engine, autoflush=False, expire_on_commit=False)
+@pytest_asyncio.fixture
+async def session_factory(db_engine):
+    return async_sessionmaker(db_engine, expire_on_commit=False)
 
 
-@pytest.fixture(scope="session")
-def test_password_hash() -> str:
-    # bcrypt se conserva en las pruebas; solo se reduce su costo para no ralentizar toda la suite.
-    return password_context.handler("bcrypt").using(rounds=4).hash(TEST_PASSWORD)
+@pytest_asyncio.fixture
+async def seed_users(session_factory) -> dict[str, Usuario]:
+    roles = {
+        name: Rol(nombre=name, descripcion=name)
+        for name in ["Administrador", "Mesero", "Cocina", "Cocinero", "Cajero"]
+    }
+    async with session_factory() as db:
+        db.add_all(list(roles.values()))
+        await db.flush()
+        users = {
+            "administrador": Usuario(nombres="Admin", apellidos="Sistema", correo="admin@gmail.com", hash_contraseña=hash_password("Admin123!"), estado=True, roles=[roles["Administrador"]]),
+            "mesero": Usuario(nombres="Mariana", apellidos="Gomez", correo="mesero@gmail.com", hash_contraseña=hash_password("Mesero123!"), estado=True, roles=[roles["Mesero"]]),
+            "cocina": Usuario(nombres="Carlos", apellidos="Cocina", correo="cocina@gmail.com", hash_contraseña=hash_password("Cocina123!"), estado=True, roles=[roles["Cocina"]]),
+            "cajero": Usuario(nombres="Laura", apellidos="Caja", correo="cajero@gmail.com", hash_contraseña=hash_password("Cajero123!"), estado=True, roles=[roles["Cajero"]]),
+            "inactivo": Usuario(nombres="Usuario", apellidos="Inactivo", correo="inactivo@gmail.com", hash_contraseña=hash_password("Inactivo123!"), estado=False, roles=[roles["Mesero"]]),
+        }
+        db.add_all(list(users.values()))
+        await db.commit()
+        for user in users.values():
+            await db.refresh(user)
+    return users
 
 
-@pytest.fixture(autouse=True)
-def clean_database(test_engine) -> Generator[None, None, None]:
-    Base.metadata.drop_all(bind=test_engine)
-    Base.metadata.create_all(bind=test_engine)
-    yield
-    Base.metadata.drop_all(bind=test_engine)
-
-
-@pytest.fixture
-def client(test_session_factory) -> Generator[TestClient, None, None]:
-    def override_get_db() -> Generator[Session, None, None]:
-        with test_session_factory() as db:
+@pytest_asyncio.fixture
+async def override_db(session_factory):
+    async def dependency() -> AsyncGenerator[AsyncSession, None]:
+        async with session_factory() as db:
             yield db
 
-    original_overrides = app.dependency_overrides.copy()
-    app.dependency_overrides[get_db] = override_get_db
-    try:
-        with TestClient(app, base_url="https://testserver") as test_client:
-            yield test_client
-    finally:
-        app.dependency_overrides = original_overrides
+    app.dependency_overrides[get_db] = dependency
+    yield
+    app.dependency_overrides.clear()
 
 
-@pytest.fixture
-def seeded_users(test_session_factory, test_password_hash: str) -> dict[str, dict[str, int | str]]:
-    roles = {name: Rol(nombre=name, descripcion=name.title()) for name in ("ADMIN", "GERENTE", "MESERO", "COCINA")}
-    users = {
-        "admin": Usuario(
-            nombre_completo="Administradora de Prueba",
-            email="admin@example.com",
-            password_hash=test_password_hash,
-            roles=[roles["ADMIN"]],
-        ),
-        "mesero": Usuario(
-            nombre_completo="Mesero de Prueba",
-            email="mesero@example.com",
-            password_hash=test_password_hash,
-            roles=[roles["MESERO"]],
-        ),
-        "cocina": Usuario(
-            nombre_completo="Cocina de Prueba",
-            email="cocina@example.com",
-            password_hash=test_password_hash,
-            roles=[roles["COCINA"]],
-        ),
+@pytest_asyncio.fixture
+async def client(override_db) -> AsyncGenerator[AsyncClient, None]:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://testserver") as async_client:
+        yield async_client
+
+
+def bearer_for(user: Usuario) -> dict[str, str]:
+    return {
+        "Authorization": f"Bearer {create_access_token(user.id_usuario, [role.nombre for role in user.roles])}"
     }
-    with test_session_factory() as db:
-        db.add_all(roles.values())
-        db.add_all(users.values())
-        db.commit()
-        return {
-            name: {"id": user.id, "email": user.email, "password": TEST_PASSWORD}
-            for name, user in users.items()
-        }
 
 
-@pytest.fixture
-def admin_client(client: TestClient, seeded_users: dict[str, dict[str, int | str]]) -> TestClient:
-    response = client.post(
-        "/api/v1/auth/login",
-        json={"correo": seeded_users["admin"]["email"], "contrasena": TEST_PASSWORD},
-    )
-    assert response.status_code == 200
-    return client
+@pytest_asyncio.fixture
+async def auth_headers(seed_users):
+    return {name: bearer_for(user) for name, user in seed_users.items()}

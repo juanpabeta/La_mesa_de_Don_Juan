@@ -1,37 +1,43 @@
-"""DTOs de autenticación y sesión; no dependen de la capa de persistencia."""
-
-from datetime import datetime
-from typing import Literal
-
-from pydantic import AliasChoices, BaseModel, ConfigDict, EmailStr, Field, field_validator
+"""DTOs de autenticación."""
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 class LoginRequest(BaseModel):
-    correo: EmailStr = Field(validation_alias=AliasChoices("correo", "email"))
-    contrasena: str = Field(
-        min_length=1,
-        max_length=128,
-        validation_alias=AliasChoices("contrasena", "password"),
-    )
+    """Credenciales para iniciar sesión."""
 
-    @field_validator("contrasena")
+    correo: EmailStr
+    contraseña: str = Field(min_length=8, max_length=128)
+
+    @field_validator("contraseña")
     @classmethod
     def bcrypt_password_fits(cls, value: str) -> str:
+        """Rechaza contraseñas que exceden el límite de bcrypt."""
         if len(value.encode("utf-8")) > 72:
             raise ValueError("La contraseña supera el límite de 72 bytes de bcrypt")
         return value
 
+    @field_validator("contraseña")
+    @classmethod
+    def password_not_empty(cls, value: str) -> str:
+        """Rechaza contraseñas vacías."""
+        if not value.strip():
+            raise ValueError("La contraseña no puede estar vacía")
+        return value
+    
+class CurrentUserResponse(BaseModel):
+    """Datos públicos del usuario autenticado."""
 
-class TokenResponse(BaseModel):
-    message: str = "Sesión iniciada"
-    token_type: Literal["cookie"] = "cookie"
-    expires_at: datetime
-
-
-class UserSession(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    nombre_completo: str
-    email: EmailStr
+    id_usuario: int
+    nombres: str
+    apellidos: str
+    correo: EmailStr
+    estado: bool
     roles: list[str]
+
+
+class LoginResponse(CurrentUserResponse):
+    """Respuesta de inicio de sesión; access_token se puede autorizar en Swagger."""
+    access_token: str
+

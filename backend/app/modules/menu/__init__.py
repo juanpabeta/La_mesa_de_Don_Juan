@@ -1,1 +1,1 @@
-"""Catálogo de platos y disponibilidad comercial."""
+"""Catálogo de platos."""

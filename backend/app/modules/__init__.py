@@ -1,1 +1,1 @@
-"""Módulos de dominio organizados por capacidad."""
+"""Módulos de negocio."""

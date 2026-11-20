@@ -1,1 +1,1 @@
-"""Registro auditable de incidencias asociadas a comandas."""
+"""Incidencias y auditoría."""

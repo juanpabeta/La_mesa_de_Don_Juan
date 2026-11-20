@@ -1,31 +1,18 @@
-"""Motor, sesiones y base declarativa de SQLAlchemy 2.0."""
-
-from collections.abc import Generator
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
-
-from app.core.config import settings
+"""Configuración de SQLAlchemy asíncrono."""
+from collections.abc import AsyncGenerator
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
+from app.core.config import get_settings
 
 
 class Base(DeclarativeBase):
     """Clase base para los modelos ORM."""
 
-
-engine = create_engine(
-    settings.database_url,
-    pool_pre_ping=True,
-    pool_size=settings.db_pool_size,
-    max_overflow=settings.db_max_overflow,
-    pool_timeout=settings.db_pool_timeout_seconds,
-)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+engine = create_async_engine(get_settings().database_url, pool_pre_ping=True)
+SessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 
-def get_db() -> Generator[Session, None, None]:
-    """Entrega una sesión por petición y garantiza su cierre."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """Entrega una sesión y garantiza su cierre."""
+    async with SessionLocal() as session:
+        yield session

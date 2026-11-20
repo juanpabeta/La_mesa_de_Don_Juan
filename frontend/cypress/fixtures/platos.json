@@ -1,0 +1,20 @@
+{
+  "ajiaco": {
+    "nombre": "Ajiaco Santafereño",
+    "categoria": "Sopas",
+    "precio": 28000,
+    "tiempo_estimado_min": 25
+  },
+  "bandeja": {
+    "nombre": "Bandeja Paisa",
+    "categoria": "Platos fuertes",
+    "precio": 36000,
+    "tiempo_estimado_min": 30
+  },
+  "sancocho": {
+    "nombre": "Sancocho",
+    "categoria": "Sopas",
+    "precio": 30000,
+    "tiempo_estimado_min": 35
+  }
+}

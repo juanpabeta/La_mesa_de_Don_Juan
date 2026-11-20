@@ -1,52 +1,64 @@
-"""Configuración del entorno de migraciones Alembic."""
+"""Configuración de Alembic."""
+import asyncio
+import sys
+from pathlib import Path
 
-from logging.config import fileConfig
+# Permite importar ``app`` aunque Alembic se ejecute desde otra carpeta.
+backend_dir = str(Path(__file__).resolve().parents[1])
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
-
-from app.core.config import settings
 from app.core.database import Base
-from app.modules.auth import models as auth_models
-from app.modules.incidencias import models as incidencias_models
-from app.modules.mesas import models as mesas_models
-from app.modules.menu import models as menu_models
-from app.modules.pedidos import models as pedidos_models
-from app.modules.usuarios import models as usuarios_models
-
-config = context.config
-config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+from app.core.config import get_settings
+from app.modules.usuarios.models import *
+from app.modules.mesas.models import *
+from app.modules.menu.models import *
+from app.modules.pedidos.models import *
+from app.modules.incidencias.models import *
 
 target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
+    """Genera SQL sin conectar."""
     context.configure(
-        url=settings.database_url,
+        url=get_settings().database_url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
-        compare_type=True,
     )
     with context.begin_transaction():
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
-    connectable = engine_from_config(
-        {"sqlalchemy.url": settings.database_url},
+def do_run_migrations(connection) -> None:
+    """Ejecuta las migraciones dentro de una conexión síncrona adaptada."""
+    context.configure(connection=connection, target_metadata=target_metadata)
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+async def run_async_migrations() -> None:
+    """Ejecuta migraciones usando el driver asíncrono de PostgreSQL."""
+    from sqlalchemy.ext.asyncio import async_engine_from_config
+    from sqlalchemy import pool
+
+    configuration = {"sqlalchemy.url": get_settings().database_url}
+    connectable = async_engine_from_config(
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
-    with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
-        with context.begin_transaction():
-            context.run_migrations()
+
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_run_migrations)
+
+    await connectable.dispose()
 
 
-if context.is_offline_mode():
-    run_migrations_offline()
-else:
-    run_migrations_online()
+def run_migrations_online() -> None:
+    """Inicia las migraciones asíncronas."""
+    asyncio.run(run_async_migrations())
+
+
+(run_migrations_offline if context.is_offline_mode() else run_migrations_online)()

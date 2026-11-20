@@ -1,27 +1,35 @@
 {
-  "name": "mesasync-frontend",
+  "name": "kitchenflow-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:e2e": "cypress run --browser chrome"
   },
   "dependencies": {
-    "axios": "^1.7.9",
+    "@tanstack/react-query": "^5.59.20",
+    "axios": "^1.7.7",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.18.6"
   },
   "devDependencies": {
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^6.3.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17",
-    "typescript": "~5.7.2",
-    "vite": "^6.0.7"
+    "tailwindcss": "^3.4.15",
+    "typescript": "~5.6.3",
+    "cypress": "^13.17.0",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   }
 }

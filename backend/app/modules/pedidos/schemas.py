@@ -1,66 +1,61 @@
-"""DTOs validados para comandas, tickets y transiciones de estado."""
-
+"""DTOs de comandas."""
 from datetime import datetime
 from decimal import Decimal
 from typing import Literal
-
 from pydantic import BaseModel, ConfigDict, Field
 
-EstadoPedido = Literal["PENDIENTE", "EN_PREPARACION", "LISTO", "ENTREGADO", "CANCELADO"]
 
-
-class DetallePedidoCreate(BaseModel):
-    plato_id: int = Field(gt=0)
-    cantidad: int = Field(gt=0, le=100)
-    notas: str | None = Field(default=None, max_length=500)
+class DetalleCreate(BaseModel):
+    """Línea solicitada."""
+    id_plato: int
+    cantidad: int = Field(gt=0)
+    observaciones: str | None = None
 
 
 class PedidoCreate(BaseModel):
-    mesa_id: int = Field(gt=0)
-    detalles: list[DetallePedidoCreate] = Field(min_length=1, max_length=50)
-    notas: str | None = Field(default=None, max_length=2000)
+    """Datos de creación de comanda."""
+    id_mesa: int
+    detalles: list[DetalleCreate] = Field(min_length=1)
 
 
-class DetallePedidoResponse(BaseModel):
+class PedidoUpdate(BaseModel):
+    """Detalles para reemplazar los de una comanda pendiente."""
+    detalles: list[DetalleCreate] = Field(min_length=1)
+
+
+class PropinaUpdate(BaseModel):
+    """Propina voluntaria expresada en COP."""
+    propina: Decimal = Field(ge=0)
+
+
+class PedidoEstado(BaseModel):
+    """Cambio de estado."""
+    estado: Literal["PENDIENTE", "EN_PREPARACION", "LISTO", "ENTREGADO", "CANCELADO"]
+    causa: str | None = None
+
+
+class DetalleRead(BaseModel):
+    """Línea persistida de una comanda."""
     model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    plato_id: int
-    nombre_plato: str
+    id_detalle: int
+    id_plato: int
+    nombre: str
     cantidad: int
     precio_unitario: Decimal
-    tiempo_preparacion_minutos: int
-    notas: str | None
+    observaciones: str | None = None
 
 
-class PedidoResponse(BaseModel):
+class PedidoRead(BaseModel):
+    """Lectura completa compatible con el KDS y el módulo de pedidos."""
     model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    mesa_id: int
-    creado_por_id: int
-    estado: EstadoPedido
-    creado_en: datetime
-    inicio_preparacion_en: datetime | None
-    listo_en: datetime | None
-    entregado_en: datetime | None
-    cancelado_en: datetime | None
-    retrasado: bool
-    retraso_marcado_en: datetime | None
-    notas: str | None
-    detalles: list[DetallePedidoResponse]
-
-
-class TicketPedidoResponse(PedidoResponse):
+    id_pedido: int
+    id_mesa: int
     numero_mesa: int
-    minutos_estimados: int
-    minutos_transcurridos: int
-
-
-class CambiarEstadoDTO(BaseModel):
-    estado: EstadoPedido
-
-
-class DeleteResponse(BaseModel):
-    message: str
-    id: int
+    id_usuario: int
+    mesero: str | None = None
+    estado: str
+    fecha_hora_creacion: datetime
+    fecha_hora_entrega: datetime | None = None
+    es_retrasado: bool
+    propina: Decimal = Decimal("0")
+    detalles: list[DetalleRead]

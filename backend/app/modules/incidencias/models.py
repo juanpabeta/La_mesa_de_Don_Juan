@@ -1,24 +1,18 @@
-"""Modelo relacional de incidencias de pedidos."""
-
-from datetime import datetime
-
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+"""Modelo de incidencias."""
+from datetime import datetime, timezone
+from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
-
 from app.core.database import Base
 
 
 class IncidenciaPedido(Base):
-    __tablename__ = "incidencia_pedido"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    pedido_id: Mapped[int | None] = mapped_column(ForeignKey("pedido.id", ondelete="SET NULL"), index=True)
-    registrada_por_id: Mapped[int] = mapped_column(ForeignKey("usuario.id", ondelete="RESTRICT"), nullable=False)
-    tipo: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
-    descripcion: Mapped[str] = mapped_column(Text, nullable=False)
-    creada_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    resuelta_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    eliminada_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    eliminada_por_id: Mapped[int | None] = mapped_column(
-        ForeignKey("usuario.id", ondelete="RESTRICT", name="fk_incidencia_eliminada_por_usuario")
-    )
+    """Registro auditable de una incidencia."""
+    __tablename__ = "incidencias_pedido"
+    id_incidencia: Mapped[int] = mapped_column(primary_key=True)
+    id_pedido: Mapped[int] = mapped_column(ForeignKey("pedidos.id_pedido"))
+    id_usuario: Mapped[int] = mapped_column(ForeignKey("usuarios.id_usuario"))
+    tipo_error: Mapped[str] = mapped_column(String(80))
+    descripcion: Mapped[str] = mapped_column(Text)
+    prioridad: Mapped[str] = mapped_column(String(20), default="MEDIA")
+    estado: Mapped[str] = mapped_column(String(20), default="ABIERTA")
+    fecha_registro: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

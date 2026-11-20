@@ -1,1 +1,1 @@
-"""Estadísticas y trazabilidad operacional."""
+"""Reportes analíticos."""

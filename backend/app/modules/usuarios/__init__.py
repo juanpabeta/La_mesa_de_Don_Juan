@@ -1,1 +1,1 @@
-"""Gestión de empleados, cuentas y roles."""
+"""Gestión de usuarios."""

@@ -1,63 +1,51 @@
-"""Excepciones de aplicación y conversión central a respuestas HTTP."""
-
-import logging
-from collections.abc import Callable
-
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-
-logger = logging.getLogger(__name__)
+"""Excepciones de dominio y manejadores HTTP."""
+from fastapi import HTTPException, status
 
 
-class AppError(Exception):
-    status_code = 400
-    code = "application_error"
+class DomainError(HTTPException):
+    """Error controlado de reglas de negocio."""
 
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
+    def __init__(self, detail: str, status_code: int = status.HTTP_400_BAD_REQUEST) -> None:
+        super().__init__(status_code=status_code, detail=detail)
 
 
-class AuthenticationError(AppError):
-    status_code = 401
-    code = "authentication_error"
+class BadRequestError(DomainError):
+    """La solicitud contiene datos inválidos (400)."""
+
+    def __init__(self, detail: str = "Solicitud inválida") -> None:
+        super().__init__(detail=detail, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-class AuthorizationError(AppError):
-    status_code = 403
-    code = "authorization_error"
+class AuthenticationError(DomainError):
+    """Falta autenticación o las credenciales no son válidas (401)."""
+
+    def __init__(self, detail: str = "Autenticación requerida") -> None:
+        super().__init__(detail=detail, status_code=status.HTTP_401_UNAUTHORIZED)
 
 
-class NotFoundError(AppError):
-    status_code = 404
-    code = "not_found"
+class PermissionDeniedError(DomainError):
+    """El usuario autenticado no tiene permisos suficientes (403)."""
+
+    def __init__(self, detail: str = "Permisos insuficientes") -> None:
+        super().__init__(detail=detail, status_code=status.HTTP_403_FORBIDDEN)
 
 
-class ConflictError(AppError):
-    status_code = 409
-    code = "conflict"
+class NotFoundError(DomainError):
+    """El recurso solicitado no existe (404)."""
+
+    def __init__(self, detail: str = "Recurso no encontrado") -> None:
+        super().__init__(detail=detail, status_code=status.HTTP_404_NOT_FOUND)
 
 
-class BusinessRuleError(AppError):
-    status_code = 422
-    code = "business_rule_violation"
+class ConflictError(DomainError):
+    """La operación entra en conflicto con el estado actual (409)."""
+
+    def __init__(self, detail: str = "Conflicto con el estado actual del recurso") -> None:
+        super().__init__(detail=detail, status_code=status.HTTP_409_CONFLICT)
 
 
-async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"error": {"code": exc.code, "message": exc.message}},
-    )
+class UnprocessableEntityError(DomainError):
+    """La solicitud está bien formada, pero no se puede procesar (422)."""
 
-
-async def unexpected_error_handler(request: Request, exc: Exception) -> JSONResponse:
-    logger.exception("Error no controlado atendiendo %s", request.url.path, exc_info=exc)
-    return JSONResponse(
-        status_code=500,
-        content={"error": {"code": "internal_error", "message": "Error interno del servidor"}},
-    )
-
-
-def register_exception_handlers(app: FastAPI) -> None:
-    app.add_exception_handler(AppError, app_error_handler)  # type: ignore[arg-type]
-    app.add_exception_handler(Exception, unexpected_error_handler)  # type: ignore[arg-type]
+    def __init__(self, detail: str = "La solicitud no se pudo procesar") -> None:
+        super().__init__(detail=detail, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
