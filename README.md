@@ -1,6 +1,6 @@
 # KitchenFlow
 
-KitchenFlow es un sistema POS y KDS para restaurantes, diseñado para coordinar mesas, pedidos, cocina, incidencias, empleados y reportes en tiempo real.
+KitchenFlow es un sistema para restaurantes, diseñado para coordinar mesas, pedidos, cocina, incidencias, empleados y reportes en tiempo real.
 
 ## Tecnologías
 
@@ -17,7 +17,7 @@ KitchenFlow es un sistema POS y KDS para restaurantes, diseñado para coordinar 
 - Autenticación por roles y rutas protegidas
 - Administración de empleados con desactivación lógica
 - Gestión de mesas, zonas y transferencia de comandas
-- Catálogo de platos y estado 86/agotado
+- Catálogo de platos y estado agotado
 - Flujo de pedidos: pendiente, preparación, listo y entregado
 - Pantalla KDS y sincronización mediante WebSockets
 - Incidencias con trazabilidad y auditoría
@@ -78,7 +78,7 @@ Ejecuta las migraciones y el servidor:
 
 ```powershell
 alembic upgrade head
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+uvicorn app.main:app --reload
 ```
 
 Documentación interactiva:
@@ -158,20 +158,20 @@ npm run cy:run
 
 ### Backend
 
-| Variable | Descripción |
-|---|---|
-| `DATABASE_URL` | Conexión asyncpg a PostgreSQL |
-| `JWT_SECRET_KEY` | Clave de firma JWT |
-| `COOKIE_SECURE` | Cookie segura únicamente en HTTPS |
-| `JWT_ALGORITHM` | Algoritmo JWT, normalmente HS256 |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Duración de la sesión |
+| Variable                        | Descripción                       |
+| ------------------------------- | ---------------------------------- |
+| `DATABASE_URL`                | Conexión asyncpg a PostgreSQL     |
+| `JWT_SECRET_KEY`              | Clave de firma JWT                 |
+| `COOKIE_SECURE`               | Cookie segura únicamente en HTTPS |
+| `JWT_ALGORITHM`               | Algoritmo JWT, normalmente HS256   |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Duración de la sesión            |
 
 ### Frontend
 
-| Variable | Descripción |
-|---|---|
+| Variable         | Descripción        |
+| ---------------- | ------------------- |
 | `VITE_API_URL` | URL base de FastAPI |
-| `VITE_WS_URL` | URL del WebSocket |
+| `VITE_WS_URL`  | URL del WebSocket   |
 
 ## API principal
 
