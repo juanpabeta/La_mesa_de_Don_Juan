@@ -19,10 +19,10 @@ describe('Reportes, KPIs y exportación', () => {
       cy.visit('/app/reportes');
 
       cy.contains('button', 'Exportar CSV').click();
-      cy.readFile('cypress/downloads/kitchenflow-reporte-7-días.csv', { timeout: 10_000 }).should('contain', 'Día,Ventas COP,Pedidos');
+      cy.readFile('cypress/downloads/la-mesa-de-don-juan-reporte-7-días.csv', { timeout: 10_000 }).should('contain', 'Día,Ventas COP,Pedidos');
 
       cy.contains('button', 'Exportar JSON').click();
-      cy.readFile('cypress/downloads/kitchenflow-reporte-7-días.json', { timeout: 10_000 }).should((report) => {
+      cy.readFile('cypress/downloads/la-mesa-de-don-juan-reporte-7-días.json', { timeout: 10_000 }).should((report) => {
         expect(report).to.have.property('ventas_totales_cop');
         expect(report).to.have.property('ventas_por_dia');
       });

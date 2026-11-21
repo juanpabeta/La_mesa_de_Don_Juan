@@ -1,1 +1,1 @@
-"""Aplicación KitchenFlow."""
+"""Aplicación La mesa de Don Juan."""

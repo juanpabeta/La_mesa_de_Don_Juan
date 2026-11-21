@@ -7,7 +7,7 @@ describe('Usuarios y desactivación lógica', () => {
       cy.visit('/app/usuarios');
       cy.contains('button', 'Agregar empleado').click();
       const stamp = Date.now();
-      const correo = `qa-${stamp}@kitchenflow.local`;
+      const correo = `qa-${stamp}@lamesadedonjuan.local`;
       cy.get('#user-name').type('Empleado');
       cy.get('#user-surname').type('QA');
       cy.get('#user-email').type(correo);

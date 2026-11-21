@@ -12,9 +12,9 @@ api.interceptors.response.use(
   (error: unknown) => {
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401)
-        window.dispatchEvent(new CustomEvent('kitchenflow:unauthorized'));
+        window.dispatchEvent(new CustomEvent('lamesadedonjuan:unauthorized'));
       if (error.response?.status === 403)
-        window.dispatchEvent(new CustomEvent('kitchenflow:forbidden'));
+        window.dispatchEvent(new CustomEvent('lamesadedonjuan:forbidden'));
     }
     return Promise.reject(error);
   },

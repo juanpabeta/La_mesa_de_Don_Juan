@@ -7,7 +7,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
-const storageKey = 'kitchenflow-theme';
+const storageKey = 'la-mesa-de-don-juan-theme';
 
 function getInitialTheme(): Theme {
   const stored = window.localStorage.getItem(storageKey);

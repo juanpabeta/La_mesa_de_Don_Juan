@@ -1,4 +1,4 @@
-"""Fixtures globales para la suite asíncrona de KitchenFlow."""
+"""Fixtures globales para la suite asíncrona de La mesa de Don Juan."""
 
 from collections.abc import AsyncGenerator
 

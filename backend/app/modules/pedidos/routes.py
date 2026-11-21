@@ -71,7 +71,7 @@ async def create_pedido(data: PedidoCreate, db: AsyncSession = Depends(get_db), 
     await db.refresh(pedido)
     await realtime.broadcast("order.created", {"id_pedido": pedido.id_pedido, "id_mesa": pedido.id_mesa})
     try:
-        lines = [f"KITCHENFLOW  #{pedido.id_pedido}", f"Mesa {mesa.numero_mesa}"]
+        lines = [f"LA MESA DE DON JUAN  #{pedido.id_pedido}", f"Mesa {mesa.numero_mesa}"]
         lines.extend(f"{detalle.cantidad}x {platos[detalle.id_plato].nombre}" for detalle in pedido.detalles)
         await print_ticket(lines)
     except Exception:
@@ -219,7 +219,7 @@ async def reimprimir_pedido(pedido_id: int, db: AsyncSession = Depends(get_db), 
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     mesa = await db.get(Mesa, pedido.id_mesa)
     try:
-        lines = [f"KITCHENFLOW  #{pedido.id_pedido}", f"Mesa {mesa.numero_mesa if mesa else pedido.id_mesa}"]
+        lines = [f"LA MESA DE DON JUAN  #{pedido.id_pedido}", f"Mesa {mesa.numero_mesa if mesa else pedido.id_mesa}"]
         for detalle in pedido.detalles:
             plato = await db.get(Plato, detalle.id_plato)
             lines.append(f"{detalle.cantidad}x {plato.nombre if plato else 'Producto'}")

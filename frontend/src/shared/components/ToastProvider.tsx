@@ -17,8 +17,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
   useEffect(() => {
     const onForbidden = () => notify('No tienes permisos para realizar esta acción.', 'info');
-    window.addEventListener('kitchenflow:forbidden', onForbidden);
-    return () => window.removeEventListener('kitchenflow:forbidden', onForbidden);
+    window.addEventListener('lamesadedonjuan:forbidden', onForbidden);
+    return () => window.removeEventListener('lamesadedonjuan:forbidden', onForbidden);
   }, [notify]);
   const value = useMemo(() => ({ notify }), [notify]);
   return <ToastContext.Provider value={value}>{children}<div className="toast-stack" aria-live="polite">{toasts.map((toast) => <div className="toast" key={toast.id}><span className={`toast-icon ${toast.kind}`}>{toast.kind === 'success' ? <Check size={15} /> : <Info size={15} />}</span><span>{toast.message}</span><button onClick={() => setToasts((items) => items.filter((item) => item.id !== toast.id))} aria-label="Cerrar aviso"><X size={15} /></button></div>)}</div></ToastContext.Provider>;

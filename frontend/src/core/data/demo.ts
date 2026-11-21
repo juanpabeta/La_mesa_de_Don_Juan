@@ -4,7 +4,7 @@ export const demoUser: User = {
   id_usuario: 1,
   nombres: 'Mariana',
   apellidos: 'Gómez',
-  correo: 'mariana@kitchenflow.co',
+  correo: 'mariana@lamesadedonjuan.co',
   estado: true,
   roles: ['Administrador', 'Mesero'],
 };
@@ -53,8 +53,8 @@ export const demoIncidents: Incident[] = [
 
 export const demoUsers: User[] = [
   demoUser,
-  { id_usuario: 2, nombres: 'Valentina', apellidos: 'Ríos', correo: 'valentina@kitchenflow.co', estado: true, roles: ['Mesero'] },
-  { id_usuario: 3, nombres: 'Camilo', apellidos: 'Torres', correo: 'camilo@kitchenflow.co', estado: true, roles: ['Cocinero'] },
-  { id_usuario: 4, nombres: 'Santiago', apellidos: 'Mejía', correo: 'santiago@kitchenflow.co', estado: true, roles: ['Mesero', 'Cajero'] },
-  { id_usuario: 5, nombres: 'Lucía', apellidos: 'Pardo', correo: 'lucia@kitchenflow.co', estado: false, roles: ['Cajero'] },
+  { id_usuario: 2, nombres: 'Valentina', apellidos: 'Ríos', correo: 'valentina@lamesadedonjuan.co', estado: true, roles: ['Mesero'] },
+  { id_usuario: 3, nombres: 'Camilo', apellidos: 'Torres', correo: 'camilo@lamesadedonjuan.co', estado: true, roles: ['Cocinero'] },
+  { id_usuario: 4, nombres: 'Santiago', apellidos: 'Mejía', correo: 'santiago@lamesadedonjuan.co', estado: true, roles: ['Mesero', 'Cajero'] },
+  { id_usuario: 5, nombres: 'Lucía', apellidos: 'Pardo', correo: 'lucia@lamesadedonjuan.co', estado: false, roles: ['Cajero'] },
 ];

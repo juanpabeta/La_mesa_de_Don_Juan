@@ -5,9 +5,9 @@ describe('Autenticación, cookie HttpOnly y RBAC', () => {
 
   it('rechaza credenciales inválidas sin crear una sesión', () => {
     cy.visit('/login');
-    cy.get('#email').type('nadie@kitchenflow.local');
+    cy.get('#email').type('nadie@lamesadedonjuan.local');
     cy.get('#password').type('Incorrecta123!');
-    cy.contains('button', 'Entrar a KitchenFlow').click();
+    cy.contains('button', 'Entrar a La mesa de Don Juan').click();
     cy.contains('[role="alert"]', 'Credenciales inválidas');
     cy.getCookie('access_token').should('be.null');
   });

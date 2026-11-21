@@ -1,27 +1,27 @@
 {
   "administrador": {
-    "correo": "admin@kitchenflow.local",
+    "correo": "admin@lamesadedonjuan.local",
     "contraseña": "Admin123!",
     "nombres": "Admin",
     "apellidos": "Sistema",
     "rol": "Administrador"
   },
   "mesero": {
-    "correo": "mesero@kitchenflow.local",
+    "correo": "mesero@lamesadedonjuan.local",
     "contraseña": "Mesero123!",
     "nombres": "Mariana",
     "apellidos": "Gomez",
     "rol": "Mesero"
   },
   "cocina": {
-    "correo": "cocina@kitchenflow.local",
+    "correo": "cocina@lamesadedonjuan.local",
     "contraseña": "Cocina123!",
     "nombres": "Carlos",
     "apellidos": "Cocina",
     "rol": "Cocina"
   },
   "inactivo": {
-    "correo": "inactivo@kitchenflow.local",
+    "correo": "inactivo@lamesadedonjuan.local",
     "contraseña": "Inactivo123!",
     "nombres": "Usuario",
     "apellidos": "Inactivo",

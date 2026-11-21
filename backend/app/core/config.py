@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Variables de configuración cargadas exclusivamente desde el entorno."""
 
-    app_name: str = "KitchenFlow API"
+    app_name: str = "La mesa de Don Juan API"
     database_url: str
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"

@@ -1,4 +1,4 @@
-"""Punto de entrada de KitchenFlow."""
+"""Punto de entrada de La mesa de Don Juan."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import WebSocket, WebSocketDisconnect
@@ -16,7 +16,7 @@ from app.modules.pedidos.routes import router as pedidos_router
 from app.modules.incidencias.routes import router as incidencias_router
 from app.modules.reportes.routes import router as reportes_router
 
-app = FastAPI(title="KitchenFlow API", version="1.0.0")
+app = FastAPI(title="La mesa de Don Juan API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[

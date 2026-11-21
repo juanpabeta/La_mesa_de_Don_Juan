@@ -34,7 +34,7 @@ export function ReportsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `kitchenflow-reporte-${period.toLowerCase().replace(' ', '-')}.${kind}`;
+    link.download = `la-mesa-de-don-juan-reporte-${period.toLowerCase().replace(' ', '-')}.${kind}`;
     link.click();
     URL.revokeObjectURL(url);
     notify(`Reporte ${kind.toUpperCase()} descargado.`);

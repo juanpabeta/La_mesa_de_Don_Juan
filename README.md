@@ -1,6 +1,6 @@
-# KitchenFlow
+# La mesa de Don Juan
 
-KitchenFlow es un sistema para restaurantes, diseñado para coordinar mesas, pedidos, cocina, incidencias, empleados y reportes en tiempo real.
+La mesa de Don Juan es un sistema para restaurantes, diseñado para coordinar mesas, pedidos, cocina, incidencias, empleados y reportes en tiempo real.
 
 ## Tecnologías
 

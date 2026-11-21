@@ -4,6 +4,6 @@ import { App } from './App';
 import './styles.css';
 
 const root = document.getElementById('root');
-if (!root) throw new Error('No se encontró el elemento raíz de KitchenFlow.');
+if (!root) throw new Error('No se encontró el elemento raíz de La mesa de Don Juan.');
 
 createRoot(root).render(<StrictMode><App /></StrictMode>);

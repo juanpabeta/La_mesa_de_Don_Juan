@@ -40,10 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const onUnauthorized = () => {
       setUser(null);
     };
-    window.addEventListener('kitchenflow:unauthorized', onUnauthorized);
+    window.addEventListener('lamesadedonjuan:unauthorized', onUnauthorized);
     return () => {
       active = false;
-      window.removeEventListener('kitchenflow:unauthorized', onUnauthorized);
+      window.removeEventListener('lamesadedonjuan:unauthorized', onUnauthorized);
     };
   }, []);
 

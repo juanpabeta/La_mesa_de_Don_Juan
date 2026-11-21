@@ -1,4 +1,4 @@
-"""Crea un usuario administrador para KitchenFlow."""
+"""Crea un usuario administrador para La mesa de Don Juan."""
 import argparse
 import asyncio
 import getpass
