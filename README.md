@@ -156,6 +156,12 @@ npm run cy:run
 
 ## Variables principales
 
+Para publicar la aplicación en el dominio público:
+
+- Sitio: `https://www.lamesadedonjuan.website`
+- API: `https://www.lamesadedonjuan.website/api/v1`
+- WebSocket: `wss://www.lamesadedonjuan.website/api/v1/ws`
+
 ### Backend
 
 | Variable                        | Descripción                       |
