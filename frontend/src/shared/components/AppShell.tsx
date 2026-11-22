@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Bell, BookOpen, ChefHat, ChevronDown, CircleDollarSign, ClipboardList, Grid2X2, LayoutDashboard, LogOut, Menu, Menu as MenuIcon, Search, Settings2, Users, Utensils, X, type LucideIcon } from 'lucide-react';
+import { Activity, Bell, BookOpen, ChefHat, ChevronDown, CircleDollarSign, ClipboardList, Grid2X2, LayoutDashboard, LogOut, Menu, Menu as MenuIcon, Search, Settings2, Users, X, type LucideIcon } from 'lucide-react';
 import { useAuth } from '../../core/auth/AuthContext';
 import { useWebSocket } from '../../core/hooks/useWebSocket';
 import type { AppRole } from '../../core/types';
@@ -42,7 +42,7 @@ export function AppShell() {
   return <div className="app-layout">
     {mobileOpen && <button className="mobile-scrim" aria-label="Cerrar menú" onClick={() => setMobileOpen(false)} />}
     <aside className={`sidebar ${mobileOpen ? 'sidebar-open' : ''}`}>
-      <div className="brand-lockup"><div className="brand-symbol"><Utensils size={19} strokeWidth={2.5} /></div><div className="brand-name">La mesa de <span>Don Juan</span><small>RESTAURANT OS</small></div><button className="mobile-close icon-button" onClick={() => setMobileOpen(false)} aria-label="Cerrar navegación"><X size={18} /></button></div>
+      <div className="brand-lockup"><img className="brand-logo" src="/logo.jpg" alt="La mesa de Don Juan" /><div className="brand-name">La mesa de <span>Don Juan</span><small>RESTAURANT OS</small></div><button className="mobile-close icon-button" onClick={() => setMobileOpen(false)} aria-label="Cerrar navegación"><X size={18} /></button></div>
       <div className="restaurant-switch"><div className="restaurant-avatar">M</div><div className="restaurant-copy"><strong>Madre Tierra</strong><span>Restaurante principal</span></div><ChevronDown size={15} /></div>
       <nav className="side-nav" aria-label="Navegación principal">{groups.map((group) => <div className="nav-group" key={group}><div className="nav-group-label">{group}</div><div className="nav-group-links">{items.filter((item) => item.group === group).map(({ label, path, icon: Icon }) => <NavLink to={path} key={path} onClick={() => setMobileOpen(false)} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}><Icon size={18} strokeWidth={1.9} /><span>{label}</span>{label === 'Cocina KDS' && <span className="nav-counter">3</span>}</NavLink>)}</div></div>)}</nav>
       <div className="sidebar-bottom"><div className="live-status"><span className={`live-pulse ${connected ? 'connected' : ''}`} /><div><strong>{connected ? 'En vivo' : 'Operación local'}</strong><small>{connected ? 'Conectado al servidor' : 'Actualización activa'}</small></div><Settings2 size={16} /></div><button className="profile-row" onClick={handleLogout}><div className="profile-avatar">{user?.nombres.slice(0, 1)}{user?.apellidos.slice(0, 1)}</div><div className="profile-copy"><strong>{user?.nombres} {user?.apellidos}</strong><small>{user?.roles[0] ?? 'Equipo'}</small></div><LogOut size={16} /></button></div>
